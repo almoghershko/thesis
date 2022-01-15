@@ -2,3 +2,5 @@ boto3
 progressbar2
 sfdmap
 GPUtil
+bokeh
+holoviews
