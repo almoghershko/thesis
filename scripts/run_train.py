@@ -610,10 +610,16 @@ if not load_NN:
     X_train, X_val, I_train, I_test = train_test_split(X, np.arange(X.shape[0]), train_size=9000, random_state=seed)
 
     batch_size = 128
+    
+    full_epoch = int(sys.argv[1])
+    if len(sys.argv)>2:
+        snr_range_db = [int(sys.argv[2]),int(sys.argv[3])]
+    else:
+        snr_range_db = None
 
     from NN import DistillationDataGenerator
-    train_gen = DistillationDataGenerator(X_train, dis_mat[I_train,:][:,I_train], shuffle=True, seed=seed, batch_size=batch_size)
-    val_gen = DistillationDataGenerator(X_val, dis_mat[I_test,:][:,I_test], shuffle=True, seed=seed, batch_size=batch_size)
+    train_gen = DistillationDataGenerator(X_train, dis_mat[I_train,:][:,I_train], batch_size=batch_size, shuffle=True, seed=seed, snr_range_db=snr_range_db, full_epoch=full_epoch)
+    val_gen = DistillationDataGenerator(X_val, dis_mat[I_test,:][:,I_test], batch_size=batch_size, shuffle=True, seed=seed, snr_range_db=snr_range_db, full_epoch=False)
 
 
 # ## Training the model
