@@ -611,9 +611,9 @@ if not load_NN:
 
     batch_size = 128
     
-    full_epoch = int(sys.argv[1])
+    full_epoch = int(sys.argv[2])
     if len(sys.argv)>2:
-        snr_range_db = [int(sys.argv[2]),int(sys.argv[3])]
+        snr_range_db = [int(sys.argv[3]),int(sys.argv[4])]
     else:
         snr_range_db = None
 
@@ -631,7 +631,8 @@ if save_NN:
     
     # create a save dir
     from datetime import datetime
-    s3_save_NN_dir_path = os.path.join(s3_saves_dir_path, 'NN', 'long___' + datetime.now().strftime("%Y_%m_%d___%H_%M_%S") + '___' + save_NN_name)
+    run_prefix = os.environ['RUN_PREFIX']
+    s3_save_NN_dir_path = os.path.join(s3_saves_dir_path, 'NN', run_prefix+'___' + datetime.now().strftime("%Y_%m_%d___%H_%M_%S") + '___' + save_NN_name)
     print('save NN folder (S3): ' + s3_save_NN_dir_path)
 
 
