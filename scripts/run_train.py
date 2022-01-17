@@ -612,7 +612,7 @@ if not load_NN:
     batch_size = 128
     
     full_epoch = int(sys.argv[2])
-    if len(sys.argv)>2:
+    if len(sys.argv)>3:
         snr_range_db = [int(sys.argv[3]),int(sys.argv[4])]
     else:
         snr_range_db = None
