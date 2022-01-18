@@ -618,7 +618,8 @@ if not load_NN:
         snr_range_db = None
 
     from NN import DistillationDataGenerator
-    train_gen = DistillationDataGenerator(X_train, dis_mat[I_train,:][:,I_train], batch_size=batch_size, shuffle=True, seed=seed, snr_range_db=snr_range_db, full_epoch=full_epoch)
+    train_gen_full = DistillationDataGenerator(X_train, dis_mat[I_train,:][:,I_train], batch_size=batch_size, shuffle=True, seed=seed, snr_range_db=snr_range_db, full_epoch=full_epoch)
+    train_gen = DistillationDataGenerator(X_train, dis_mat[I_train,:][:,I_train], batch_size=batch_size, shuffle=True, seed=seed, snr_range_db=snr_range_db, full_epoch=False)
     val_gen = DistillationDataGenerator(X_val, dis_mat[I_test,:][:,I_test], batch_size=batch_size, shuffle=True, seed=seed, snr_range_db=snr_range_db, full_epoch=False)
 
 
@@ -641,9 +642,9 @@ if save_NN:
 
 if not load_NN:
 
-    epochs = 300
-    sub_epochs = 50
-    hist_epochs = 5
+    epochs = 5 # [full]
+    sub_epochs = 1 # [full]
+    hist_epochs = 10 # [not full]
     from progressbar import progressbar
     N = 1000
     edges = np.linspace(0,1,N+1)
@@ -677,9 +678,9 @@ if not load_NN:
         # train
         try:
             # for some reason, the first call to fit will throw KeyError...
-            history = siamese_model.fit(train_gen, epochs=sub_epochs, validation_data=val_gen)
+            history = siamese_model.fit(train_gen_full, epochs=sub_epochs, validation_data=val_gen)
         except KeyError:
-            history = siamese_model.fit(train_gen, epochs=sub_epochs, validation_data=val_gen)
+            history = siamese_model.fit(train_gen_full, epochs=sub_epochs, validation_data=val_gen)
         loss_history += history.history['loss']
         val_loss_history += history.history['val_loss']
             
