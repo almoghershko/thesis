@@ -73,7 +73,7 @@ class CustomRandomForest:
         self.rng = np.random.default_rng(self.seed)
         self.tree_seeds = np.round(MAX_SEED*self.rng.random(self.N_trees)).astype(int)
         
-    def fit(self, X, y):
+    def fit(self, X, y, prefer="threads"):
         """
         Fits the random forest to the data.
 
@@ -123,7 +123,7 @@ class CustomRandomForest:
 
         # train all trees in parallel
         #res = Parallel(n_jobs=-1, verbose=5, prefer="threads")(delayed(self._fit_single)(i, spans[i], X[bin2samples[tree2bin[i]]], y[bin2samples[tree2bin[i]]]) for i in range(self.N_trees))
-        res = Parallel(n_jobs=-1, verbose=5, prefer="threads")(delayed(self._fit_single)(i, spans[i], X, y) for i in range(self.N_trees))
+        res = Parallel(n_jobs=-1, verbose=5, prefer=prefer)(delayed(self._fit_single)(i, spans[i], X, y) for i in range(self.N_trees))
         """
         res = []
         for i in progressbar(range(self.N_trees)):
@@ -663,7 +663,7 @@ def sim_i(i, X_leaves, good_preds):
     """
     
     N_samples = X_leaves.shape[0]
-    sim = np.zeros(shape=(N_samples,))
+    sim = np.zeros(shape=(N_samples,), dtype=np.float32)
     sim[i] = 1.0 # trivial
     for j in range(i+1, N_samples):
         valid = np.where(np.logical_and(good_preds[i,:], good_preds[j,:]))[0]
@@ -671,6 +671,68 @@ def sim_i(i, X_leaves, good_preds):
             same = X_leaves[i,valid] == X_leaves[j,valid]
             sim[j] = np.sum(same) / len(valid)
     return (i, sim)
+
+def build_distance_matrix(X_leaves, Y_hat):
+    """
+    distance=1-similarity
+
+    Parameters
+    ----------
+    X_leaves : 2-D numpy ndarray of shape (n_samples, n_trees)
+        the leaves matrix received by applying the random forest.
+    Y_hat : 2-D numpy ndarray of shape (n_samples, n_trees)
+        the predictions of each tree for each sample.
+
+    Returns
+    -------
+    dist_mat : 2-D numpy ndarray of shape (n_samples, n_samples)
+        the distance matrix.
+
+    """
+
+    N_samples = X_leaves.shape[0]
+    good_preds = Y_hat == 1
+    res = Parallel(n_jobs=-1, verbose=5)(delayed(dist_i)(i, X_leaves, good_preds) for i in range(N_samples))
+    print('assembling the matrix.')
+    res = sorted(res, key=lambda x: x[0])
+    dist_mat = np.array([x[1] for x in res])
+    i_lower = np.tril_indices(N_samples, -1)
+    dist_mat[i_lower] = dist_mat.T[i_lower]  # make the matrix symmetric
+    
+    return dist_mat
+
+def dist_i(i, X_leaves, good_preds):
+    """
+    distance=1-similarity
+
+    Parameters
+    ----------
+    i : int
+        line index.
+    X_leaves : ndarray of shape (n_samples, n_trees)
+        the leaves matrix (after applying the random forest).
+    good_preds : ndarray of shape (n_samples, n_trees) and type bool
+        a boolean matrix where the value in location (i,j) is True if the j-th
+        tree predicted the i-th sample as real, False of not.
+
+    Returns
+    -------
+    i : int
+        line index.
+    dist : ndarray of shape (n_samples,)
+        the i-th line in the distance matrix (only right to the main diagonal).
+
+    """
+    
+    N_samples = X_leaves.shape[0]
+    dist = np.zeros(shape=(N_samples,), dtype=np.float32)
+    dist[i] = 1.0 # trivial
+    for j in range(i+1, N_samples):
+        valid = np.where(np.logical_and(good_preds[i,:], good_preds[j,:]))[0]
+        if len(valid)>0:
+            same = X_leaves[i,valid] == X_leaves[j,valid]
+            dist[j] = 1 - (np.sum(same) / len(valid))
+    return (i, dist)
 
 def return_synthetic_data(X, seed=42):
     """

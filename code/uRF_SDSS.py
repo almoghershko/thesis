@@ -503,7 +503,7 @@ def merge_work_and_synthetic_samples(X_real, X_syn):
 
     Y_total = np.concatenate((Y, Y_syn)) # Classes vector
     X_total = np.concatenate((X_real, X_syn)) # Merged array
-    return X_total, Y_total
+    return X_total.astype(np.float32), Y_total.astype(np.float32)
 
 
 def calcDisMat(rf, X_real):
