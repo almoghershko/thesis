@@ -209,7 +209,7 @@ siamese_model.compile(optimizer=optimizers.Adam(0.001))
 
 # In[24]:
 
-
+from sklearn.model_selection import train_test_split
 if not load_NN:
 
     from NN import DistillationDataGenerator
