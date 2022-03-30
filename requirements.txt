@@ -4,3 +4,4 @@ sfdmap
 GPUtil
 bokeh
 holoviews
+pandas==1.4.1
