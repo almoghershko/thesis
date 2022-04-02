@@ -285,9 +285,9 @@ if not load_NN:
         # train
         try:
             # for some reason, the first call to fit will throw KeyError...
-            history = siamese_model.fit(train_gen_full, epochs=sub_epochs, validation_data=val_gen)
+            history = siamese_model.fit(train_gen_full, epochs=sub_epochs, validation_data=val_gen, verbose=2)
         except KeyError:
-            history = siamese_model.fit(train_gen_full, epochs=sub_epochs, validation_data=val_gen)
+            history = siamese_model.fit(train_gen_full, epochs=sub_epochs, validation_data=val_gen, verbose=2)
         loss_history += history.history['loss']
         val_loss_history += history.history['val_loss']
             
@@ -357,18 +357,11 @@ if save_NN:
     stringlist = []
     siamese_network.summary(print_fn=lambda x: stringlist.append(x))
     siamese_network_summary = "\n".join(stringlist)
-    
-    # the path of the RF this NN was trained on
-    s3_save_RF_path = 'RF not save'
-    if save_RF:
-        s3_save_RF_path = s3_save_dir_path
-    if load_RF:
-        s3_save_RF_path = s3_load_dir_path
 
     # save log
     from s3 import log_s3
     log_s3(s3_client, bucket_name, s3_save_NN_dir_path, 'NN_log.txt',
-        s3_save_RF_path = s3_save_RF_path,
+        s3_urf_save_dir_path = s3_urf_save_dir_path,
         embedding_summary = embedding_summary,
         siamese_network_summary = siamese_network_summary
         )
