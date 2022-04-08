@@ -18,7 +18,7 @@ local_work_dir_path = os.path.join(local_home_dir_path, 'thesis')
 local_code_dir_path = os.path.join(local_work_dir_path , 'code')
 
 # S3 file paths
-endpoint_url = 's3-west.nrp-nautilus.io'
+endpoint_url = 'https://s3-west.nrp-nautilus.io'
 bucket_name = 'tau-astro'
 prefix = 'almogh'
 s3_work_dir_path = os.path.join(prefix, 'workdir3')
