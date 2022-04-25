@@ -28,5 +28,5 @@ spec:
             aws --endpoint https://s3-west.nrp-nautilus.io s3 cp ./stdout.txt s3://tau-astro/almogh/workdir3/runs/$run_name/;
         env:
           - name: "RUN_PREFIX"
-            value: "LongTrain"
+            value: "Download"
       restartPolicy: Never
