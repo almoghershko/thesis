@@ -1,0 +1,29 @@
+FROM tensorflow/tensorflow:2.7.0-gpu
+
+# copy the AWS credentials
+COPY credentials /root/.aws/
+
+# add miniconda path
+ENV PATH="/root/miniconda3/bin:${PATH}"
+
+# apt-get installs
+RUN set -x; buildDeps='wget' \
+    && apt-get update \
+    && apt-get install -y $buildDeps \
+    && apt-get install -y tzdata \
+    && wget https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh \
+    && mkdir /root/.conda \
+    && bash Miniconda3-py39_4.9.2-Linux-x86_64.sh -b \
+    && rm -rf Miniconda3-py39_4.9.2-Linux-x86_64.sh \
+    && apt-get install -y awscli \
+    && apt-get install -y git \
+    && apt-get purge -y --auto-remove $buildDeps
+
+# pip installs
+RUN pip install --upgrade pip \
+    && pip install pandas \
+	&& pip install boto3 \
+	&& pip install progressbar2 \
+	&& pip install sfdmap \
+	&& pip install GPUtil
+	

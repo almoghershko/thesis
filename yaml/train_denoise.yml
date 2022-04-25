@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: almoghershko-long-train-denoise
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+      - name: container
+        image: almogh/tf-almog
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: "4"
+            memory: "32Gi"
+            nvidia.com/gpu:  "1"
+          limits:
+            cpu: "4"
+            memory: "32Gi"
+            nvidia.com/gpu:  "1"
+        command: ["/bin/bash", "-c"]
+        args:
+          - cd root; 
+            git clone https://github.com/almoghershko/thesis.git;
+            dt=$(date '+%Y_%m_%d__%H_%M_%S');
+            run_name="$RUN_PREFIX"__"$dt";
+            pip install -r thesis/requirements.txt;
+            python thesis/scripts/run_train.py $run_name 1 6 40 &> stdout.txt;
+            aws --endpoint https://s3-west.nrp-nautilus.io s3 cp ./stdout.txt s3://tau-astro/almogh/workdir3/runs/$run_name/;
+        env:
+          - name: "RUN_PREFIX"
+            value: "LongTrainDenoise"
+      nodeSelector:
+        gpu-type: "1080Ti"
+      restartPolicy: Never
