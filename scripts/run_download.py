@@ -38,10 +38,13 @@ run_name = sys.argv[1]
 s3_run_dir_path = os.path.join(s3_runs_dir_path, run_name)
 print('run dir path = {0}'.format(s3_run_dir_path))
 
-
 # get the chunk number and chunk
 i_gs = sys.argv[2]
+print('chunk index = {0}'.format(i_gs))
 gs = from_s3_pkl(s3_client, bucket_name, os.path.join(s3_data_ver_dir_path,'gs{0}.pkl'.format(i_gs)))
+
+# download wl_grid
+wl_grid = from_s3_npy(s3_client, bucket_name, os.path.join(s3_data_dir_path,'wl_grid.npy'))
 
 # create a wrapper that returns the index also
 from pre_processing import download_spectrum
