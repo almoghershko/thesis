@@ -170,7 +170,7 @@ def download_spectrum(g, pre_proc=False, wl_grid=None):
                 # updating wavelength vec
                 wl = wl_grid
             
-            return spec, wl, ivar
+            return spec.astype(np.float32), wl.astype(np.float32), ivar.astype(np.float32)
                 
         # If failed, try to re-download the .fits file and try again (up to 10 times)
         except Exception as e:
