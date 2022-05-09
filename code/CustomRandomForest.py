@@ -73,7 +73,7 @@ class CustomRandomForest:
         self.rng = np.random.default_rng(self.seed)
         self.tree_seeds = np.round(MAX_SEED*self.rng.random(self.N_trees)).astype(int)
         
-    def fit(self, X, y, prefer="threads"):
+    def fit(self, X, y, prefer="threads", n_jobs=-1):
         """
         Fits the random forest to the data.
 
@@ -123,7 +123,7 @@ class CustomRandomForest:
 
         # train all trees in parallel
         #res = Parallel(n_jobs=-1, verbose=5, prefer="threads")(delayed(self._fit_single)(i, spans[i], X[bin2samples[tree2bin[i]]], y[bin2samples[tree2bin[i]]]) for i in range(self.N_trees))
-        res = Parallel(n_jobs=-1, verbose=5, prefer=prefer)(delayed(self._fit_single)(i, spans[i], X, y) for i in range(self.N_trees))
+        res = Parallel(n_jobs=n_jobs, verbose=5, prefer=prefer)(delayed(self._fit_single)(i, spans[i], X, y) for i in range(self.N_trees))
         """
         res = []
         for i in progressbar(range(self.N_trees)):
