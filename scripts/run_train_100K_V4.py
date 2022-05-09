@@ -32,7 +32,8 @@ prefix = 'almogh'
 s3_work_dir_path = os.path.join(prefix, 'workdir3')
 s3_saves_dir_path = os.path.join(s3_work_dir_path , 'model_saves')
 s3_data_dir_path = os.path.join(s3_work_dir_path , 'data')
-s3_data_ver_dir_path = os.path.join(s3_data_dir_path,'100K_V4')
+data_ver = '100K_V4'
+s3_data_ver_dir_path = os.path.join(s3_data_dir_path,data_ver)
 save_RF_dir = 'simple___2022_05_07___18_57_07___100K_V4_training_set'
 s3_urf_save_dir_path = os.path.join(s3_saves_dir_path, 'RF', save_RF_dir)
 s3_runs_dir_path = os.path.join(s3_work_dir_path , 'runs')
@@ -250,7 +251,7 @@ if save_NN:
     # create a save dir
     from datetime import datetime
     run_prefix = os.environ['RUN_PREFIX']
-    s3_save_NN_dir_path = os.path.join(s3_saves_dir_path, 'NN', '100K', run_prefix+'___' + datetime.now().strftime("%Y_%m_%d___%H_%M_%S") + '___' + save_NN_name)
+    s3_save_NN_dir_path = os.path.join(s3_saves_dir_path, 'NN', data_ver, run_prefix+'___' + datetime.now().strftime("%Y_%m_%d___%H_%M_%S") + '___' + save_NN_name)
     print('save NN folder (S3): ' + s3_save_NN_dir_path)
 
 
