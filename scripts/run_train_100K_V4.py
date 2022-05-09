@@ -60,7 +60,7 @@ wl_grid = from_s3_npy(s3_client, bucket_name, os.path.join(s3_data_ver_dir_path,
 print('Loading data from RF dir: {0}'.format(s3_urf_save_dir_path))
 X = from_s3_npy(s3_client, bucket_name, os.path.join(s3_urf_save_dir_path, 'X.npy'))
 #I_train = from_s3_npy(s3_client, bucket_name, os.path.join(s3_urf_save_dir_path, 'I_train.npy'))
-dist_mat = from_s3_npy(s3_client, bucket_name, os.path.join(s3_urf_save_dir_path, 'dist_mat.npy'))
+dist_mat = from_s3_npy(s3_client, bucket_name, os.path.join(s3_urf_save_dir_path, 'dis_mat.npy'))
 
 # # Siamese Networks
 
