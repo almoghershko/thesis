@@ -1,0 +1,21 @@
+#!/bin/bash
+#PBS -l select=1:ncpus=32:mem=970gb
+#PBS -N 100K_V4_RF_train
+#PBS -j oe
+#PBS -o 100K_V4_RF_train.stdout
+#PBS -q bigmem
+
+echo Working directory is $PBS_O_WORKDIR
+echo Job ID is $PBS_JOBID
+echo Running on host `hostname`
+echo Directory is `pwd`
+cat /etc/hostname
+echo this job runs on the following processors:
+NODES=`cat $PBS_NODEFILE`
+echo $NODES
+
+cd $HOME
+job_dir_path="$HOME/pbs_jobs/$PBS_JOBID"
+mkdir $job_dir_path
+#source $HOME/default_conda/bin/activate conda_env
+python $HOME/git/scripts/train_random_forest_100K_V4_full_data_set.py $job_dir_path 2>&1> $job_dir_path/python.stdout
