@@ -29,7 +29,7 @@ s3_work_dir_path = os.path.join(prefix, 'workdir3')
 s3_saves_dir_path = os.path.join(s3_work_dir_path , 'model_saves')
 s3_data_dir_path = os.path.join(s3_work_dir_path , 'data')
 s3_v2_data_ver_dir_path = os.path.join(s3_data_dir_path,'100K_V2')
-s3_v4_data_ver_dir_path = os.path.join(s3_data_dir_path,'100K_V4')'
+s3_v4_data_ver_dir_path = os.path.join(s3_data_dir_path,'100K_V4')
 s3_runs_dir_path = os.path.join(s3_work_dir_path , 'runs')
 
 s3_client = boto3.client("s3", endpoint_url=endpoint_url)
