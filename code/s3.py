@@ -89,6 +89,8 @@ if not (importlib.util.find_spec("tensorflow") is None):
     import tensorflow as tf
 
     def s3_save_TF_model(model, s3_client, bucket_name, path_in_bucket, model_name='model'):
+        s3_uri = f"s3://{bucket_name}/{path_in_bucket}"
+        print('saving to uri: '+s3_uri)
         with tempfile.TemporaryDirectory() as tempdir:
             # save
             model.save(f"{tempdir}/{model_name}")
@@ -97,7 +99,6 @@ if not (importlib.util.find_spec("tensorflow") is None):
             zipdir(f"{tempdir}/{model_name}", zipf)
             zipf.close()
             # upload
-            s3_uri = f"s3://{bucket_name}/{path_in_bucket}"
             print('saving to uri: '+s3_uri)
             s3_client.upload_file(
                 f"{tempdir}/{model_name}.zip",
@@ -106,6 +107,8 @@ if not (importlib.util.find_spec("tensorflow") is None):
             )
 
     def s3_load_TF_model(s3_client, bucket_name, path_in_bucket, model_name='model', custom_objects={}):
+        s3_uri = f"s3://{bucket_name}/{path_in_bucket}"
+        print('loading from uri: '+s3_uri)
         with tempfile.TemporaryDirectory() as tempdir:
             # Fetch and save the zip file to the temporary directory
             s3_client.download_file(
