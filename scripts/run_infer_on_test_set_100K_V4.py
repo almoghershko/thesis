@@ -65,7 +65,7 @@ test_gen = DistillationDataGenerator(X, np.zeros(shape=(X.shape[0], X.shape[0]))
 from s3 import s3_load_TF_model
 from NN import DistanceLayer
 NN_save_name = sys.argv[2]
-model_save_dir_path = os.path.join(s3_saves_dir_path,'NN',NN_save_name)
+model_save_dir_path = os.path.join(s3_saves_dir_path,'NN','100K_V4',NN_save_name)
 siamese_model = s3_load_TF_model(s3_client,
                                  bucket_name=bucket_name,
                                  path_in_bucket=os.path.join(model_save_dir_path,'model'),
