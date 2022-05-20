@@ -188,8 +188,13 @@ batch_size = 128
 full_epoch = int(sys.argv[2])
 if len(sys.argv)>5:
     snr_range_db = [int(sys.argv[5]),int(sys.argv[6])]
+    awgn_str = 'Adding AWGN with SNR uniformly distributed in range [{0},{1}] dB'.format(snr_range_db[0],snr_range_db[1])
 else:
     snr_range_db = None
+    awgn_str = 'Not adding AWGN'
+print('=====================================================================================')
+print(awgn_str) 
+print('=====================================================================================')
 
 train_gen_full = DistillationDataGenerator(X_train, dist_mat[I_train,:][:,I_train], batch_size=batch_size, shuffle=True, seed=seed, snr_range_db=snr_range_db, full_epoch=full_epoch)
 train_gen = DistillationDataGenerator(X_train, dist_mat[I_train,:][:,I_train], batch_size=batch_size, shuffle=True, seed=seed, snr_range_db=snr_range_db, full_epoch=False)
@@ -202,24 +207,19 @@ val_gen = DistillationDataGenerator(X_val, dist_mat[I_test,:][:,I_test], batch_s
 # create a save dir
 run_prefix = os.environ['RUN_PREFIX']
 s3_save_NN_dir_path = os.path.join(s3_saves_dir_path, 'NN', data_ver, run_prefix+'___' + datetime.now().strftime("%Y_%m_%d___%H_%M_%S") + '___' + save_NN_name)
-print('save NN folder (S3): ' + s3_save_NN_dir_path)
+save_dir_str = 'save NN folder (S3): ' + s3_save_NN_dir_path
+print('=====================================================================================')
+print(save_dir_str)
+print('=====================================================================================')
 
 epochs = int(sys.argv[3]) # 5 # [full]
 sub_epochs = int(sys.argv[4]) # 1 # [full]
 hist_epochs = 10 # [not full]
-N = 1000
-edges = np.linspace(0,1,N+1)
-centers = (edges[:-1]+edges[1:])/2
 N_chunks = int(epochs/sub_epochs)
 loss_history = []
 val_loss_history = []
 
-# create the figures for the histogram and for the loss
-hist_fig, hist_ax = plt.subplots(figsize=(15,8))
-hist_ax.set_title('Loss histogram')
-hist_ax.set_xlabel('loss')
-hist_ax.set_ylabel('freq')
-hist_ax.grid()
+# create the figures for the loss
 loss_fig, loss_ax = plt.subplots(figsize=(15,8))
 loss_ax.set_title('Training curve')
 loss_ax.set_xlabel('epoch')
@@ -233,6 +233,10 @@ log_loss_ax.grid()
 log_loss_ax.set_yscale('log')
 
 # training loop
+training_str = 'Training for {0} {1} epochs, and stopping for saving every {2} {1} epochs, for a total of {3} stages.'.format(epochs, 'full' if full_epoch else 'partial', sub_epochs, N_chhunks)
+print('=====================================================================================')
+printf(training_str)
+print('=====================================================================================')
 start_time = time.time()
 for i_chunk in range(N_chunks):
     
@@ -248,21 +252,6 @@ for i_chunk in range(N_chunks):
         history = siamese_model.fit(train_gen_full, epochs=sub_epochs, validation_data=val_gen, verbose=2)
     loss_history += history.history['loss']
     val_loss_history += history.history['val_loss']
-        
-    # calculate histogram
-    print('calculating histogram')
-    counts = np.zeros(shape=(N,), dtype=int)
-    for _ in range(hist_epochs):
-        for data in progressbar(train_gen):
-            l = siamese_model._compute_loss(data)
-            hist,_ = np.histogram(l, bins=edges)
-            counts += hist
-    counts = np.divide(counts, np.sum(counts))
-    
-    # plot the histogram
-    curr_epochs = (i_chunk+1)*sub_epochs
-    hist_ax.plot(centers[:150],counts[:150],label='{0} epochs'.format(curr_epochs))
-    hist_ax.legend()
     
     # plot the loss
     e = np.arange(curr_epochs)+1
@@ -278,10 +267,10 @@ for i_chunk in range(N_chunks):
     print(time_str)
     
     # create a sub dir
-    s3_save_NN_dir_path_sub_epoch = os.path.join(s3_save_NN_dir_path, 'after_{0}_epochs.png'.format((i_chunk+1)*sub_epochs))
+    s3_save_NN_dir_path_sub_epoch = os.path.join(s3_save_NN_dir_path, 'after_{0}_epochs'.format((i_chunk+1)*sub_epochs))
     # save the figures
-    to_s3_fig(hist_fig, s3_client, bucket_name, os.path.join(s3_save_NN_dir_path_sub_epoch, 'loss_hist.png'))
     to_s3_fig(loss_fig, s3_client, bucket_name, os.path.join(s3_save_NN_dir_path_sub_epoch, 'loss.png'))
+    to_s3_fig(log_loss_fig, s3_client, bucket_name, os.path.join(s3_save_NN_dir_path_sub_epoch, 'loss.png'))
     # save the losses
     to_s3_npy(np.array(loss_history), s3_client, bucket_name, os.path.join(s3_save_NN_dir_path_sub_epoch, 'loss.npy'))
     to_s3_npy(np.array(val_loss_history), s3_client, bucket_name, os.path.join(s3_save_NN_dir_path_sub_epoch, 'val_loss.npy'))
@@ -294,10 +283,13 @@ for i_chunk in range(N_chunks):
     siamese_network_summary = "\n".join(stringlist)
     # save log
     log_s3(s3_client, bucket_name, s3_save_NN_dir_path_sub_epoch, 'NN_log.txt',
+        s3_NN_save_dir_path = save_dir_str,
         s3_urf_save_dir_path = s3_urf_save_dir_path,
+        epochs = training_str,
+        training_duration = time_str,
+        awgn = awgn_str,
         embedding_summary = embedding_summary,
-        siamese_network_summary = siamese_network_summary,
-        training_duration = time_str
+        siamese_network_summary = siamese_network_summary
         )
     # save the network
     s3_model_path = os.path.join(s3_save_NN_dir_path_sub_epoch, 'model')
