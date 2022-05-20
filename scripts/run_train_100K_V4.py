@@ -233,7 +233,7 @@ log_loss_ax.grid()
 log_loss_ax.set_yscale('log')
 
 # training loop
-training_str = 'Training for {0} {1} epochs, and stopping for saving every {2} {1} epochs, for a total of {3} stages.'.format(epochs, 'full' if full_epoch else 'partial', sub_epochs, N_chhunks)
+training_str = 'Training for {0} {1} epochs, and stopping for saving every {2} {1} epochs, for a total of {3} stages.'.format(epochs, 'full' if full_epoch else 'partial', sub_epochs, N_chunks)
 print('=====================================================================================')
 printf(training_str)
 print('=====================================================================================')
