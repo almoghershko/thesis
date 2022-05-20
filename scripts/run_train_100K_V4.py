@@ -164,7 +164,7 @@ distance = DistanceLayer()(
     embedding(second_input)
 )
 
-distance = activation.sigmoid(distance)
+distance = activations.sigmoid(distance)
 
 siamese_network = Model(
     inputs=[first_input, second_input], outputs=distance
