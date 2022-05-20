@@ -254,6 +254,7 @@ for i_chunk in range(N_chunks):
     val_loss_history += history.history['val_loss']
     
     # plot the loss
+    curr_epochs = (i_chunk+1)*sub_epochs
     e = np.arange(curr_epochs)+1
     loss_ax.plot(e, loss_history, label='training')
     loss_ax.plot(e, val_loss_history, label='test')
