@@ -37,7 +37,7 @@ spec:
             dt=$(date '+%Y_%m_%d__%H_%M_%S');
             run_name="$RUN_PREFIX"__"$dt";
             pip install -r thesis/requirements.txt;
-            python thesis/scripts/run_train_100K_V4.py $run_name 1 10 1 &> stdout.txt;
+            python thesis/scripts/run_train_100K_V4_sigmoid.py $run_name 1 10 1 &> stdout.txt;
             aws --endpoint https://s3-west.nrp-nautilus.io s3 cp ./stdout.txt s3://tau-astro/almogh/workdir3/runs/$run_name/;
         env:
           - name: "RUN_PREFIX"
