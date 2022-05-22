@@ -57,7 +57,7 @@ s3_client = boto3.client("s3", endpoint_url=endpoint_url)
 sys.path.insert(1, local_code_dir_path)
 from s3 import to_s3_npy, to_s3_pkl, from_s3_npy, from_s3_pkl, to_s3_fig
 from s3 import log_s3, s3_save_TF_model
-from NN import DistanceLayer, SiameseModel, DistillationDataGenerator
+from NN import DistanceLayer, SiameseModel, DistillationDataGenerator, NormalizeDistance
 
 # get run directory
 run_name = sys.argv[1]
