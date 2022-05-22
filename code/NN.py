@@ -96,6 +96,18 @@ class DistanceLayer(layers.Layer):
     def call(self, x, y):
         dist = tf.reduce_sum(tf.square(x - y), -1)
         return dist
+        
+class NormalizeDistance(layers.Layer):
+    """
+    This layer normalizes the distance to [0,1]
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def call(self, x):
+        dist = (x+1)/2
+        return dist
 
 # ==================================================================================
 
