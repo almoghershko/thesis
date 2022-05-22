@@ -145,7 +145,7 @@ x = activations.relu(x)
 x = layers.Dense(embedding_size,
                 kernel_initializer=initializers.GlorotUniform(seed=seed))(x)
 x = layers.BatchNormalization()(x)
-x = activations.tanh(x)
+#x = activations.tanh(x)
 x_out = x
 
 # creating the model
