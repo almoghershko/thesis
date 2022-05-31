@@ -176,7 +176,7 @@ dot = layers.Dot(axes=1)([first_embedding, second_embedding]) # dot product shou
 distance = NormalizeDistance()(dot)
 
 siamese_network = Model(
-    inputs=[first_input, second_input], outputs=distance, name="siamese model"
+    inputs=[first_input, second_input], outputs=distance, name="siamese_model"
 )
 siamese_network.summary()
 
