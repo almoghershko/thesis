@@ -150,7 +150,7 @@ x = layers.Dense(embedding_size,
 
 x = normalize(x, axis=1) # default is Euqlidean norm
 
-x_out = x[1]
+x_out = x[0] # taking the normalized vector (normalize returns a tuple: (normalized vector, norms))
 
 # creating the model
 embedding = Model(x_in, x_out, name="embedding")

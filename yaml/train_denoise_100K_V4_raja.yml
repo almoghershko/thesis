@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: almoghershko-long-train-denoise
+  name: almoghershko-long-train-denoise-rajah
 spec:
   backoffLimit: 0
   template:
