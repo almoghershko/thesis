@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: almoghershko-long-train-rajah
+  name: almoghershko-50epochs-train-rajah
 spec:
   backoffLimit: 0
   template:
@@ -37,9 +37,9 @@ spec:
             dt=$(date '+%Y_%m_%d__%H_%M_%S');
             run_name="$dt"__"$RUN_PREFIX";
             pip install -r thesis/requirements.txt;
-            python thesis/scripts/run_train_100K_V4_raja.py $run_name 1 10 1 &> stdout.txt;
+            python thesis/scripts/run_train_100K_V4_raja.py $run_name 1 50 5 &> stdout.txt;
             aws --endpoint https://s3-west.nrp-nautilus.io s3 cp ./stdout.txt s3://tau-astro/almogh/workdir3/runs/$run_name/;
         env:
           - name: "RUN_PREFIX"
-            value: "LongTrainV4Raja"
+            value: "50EpochsTrainV4Raja"
       restartPolicy: Never
