@@ -14,7 +14,6 @@ import numpy as np
 import os
 import sys
 import pickle
-from matplotlib import pyplot as plt
 import matplotlib
 from matplotlib import pyplot as plt
 import boto3
@@ -217,19 +216,6 @@ N_chunks = int(epochs/sub_epochs)
 loss_history = []
 val_loss_history = []
 
-# create the figures for the loss
-loss_fig, loss_ax = plt.subplots(figsize=(15,8))
-loss_ax.set_title('Training curve')
-loss_ax.set_xlabel('epoch')
-loss_ax.set_ylabel('loss')
-loss_ax.grid()
-log_loss_fig, log_loss_ax = plt.subplots(figsize=(15,8))
-log_loss_ax.set_title('Training curve (Log Scale)')
-log_loss_ax.set_xlabel('epoch')
-log_loss_ax.set_ylabel('log(loss)')
-log_loss_ax.grid()
-log_loss_ax.set_yscale('log')
-
 # training loop
 training_str = 'Training for {0} {1} epochs, and stopping for saving every {2} {1} epochs, for a total of {3} stages.'.format(epochs, 'full' if full_epoch else 'partial', sub_epochs, N_chunks)
 print('=====================================================================================')
@@ -250,6 +236,19 @@ for i_chunk in range(N_chunks):
         history = siamese_model.fit(train_gen_full, epochs=sub_epochs, validation_data=val_gen, verbose=2)
     loss_history += history.history['loss']
     val_loss_history += history.history['val_loss']
+    
+    # create the figures for the loss
+    loss_fig, loss_ax = plt.subplots(figsize=(15,8))
+    loss_ax.set_title('Training curve')
+    loss_ax.set_xlabel('epoch')
+    loss_ax.set_ylabel('loss')
+    loss_ax.grid()
+    log_loss_fig, log_loss_ax = plt.subplots(figsize=(15,8))
+    log_loss_ax.set_title('Training curve (Log Scale)')
+    log_loss_ax.set_xlabel('epoch')
+    log_loss_ax.set_ylabel('log(loss)')
+    log_loss_ax.grid()
+    log_loss_ax.set_yscale('log')
     
     # plot the loss
     curr_epochs = (i_chunk+1)*sub_epochs
