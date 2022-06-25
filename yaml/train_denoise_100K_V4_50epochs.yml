@@ -23,12 +23,12 @@ spec:
         imagePullPolicy: Always
         resources:
           requests:
-            cpu: "4"
-            memory: "32Gi"
+            cpu: "2"
+            memory: "16Gi"
             nvidia.com/gpu:  "1"
           limits:
-            cpu: "4"
-            memory: "32Gi"
+            cpu: "2"
+            memory: "16Gi"
             nvidia.com/gpu:  "1"
         command: ["/bin/bash", "-c"]
         args:
