@@ -13,7 +13,7 @@ parser.add_argument("--tanh", help="using tanh in encoder final layer", action="
 parser.add_argument("--sigmoid", help="using sigmoid after distance", action="store_true")
 parser.add_argument("--dist_loss", help="The loss function for the distance", type=str, choices=['L1','L2'], default='L1')
 parser.add_argument("--step", help="training step", default=0.001)
-
+args = parser.parse_args()
 print('args:\n\t'+'\n\t'.join(f'{k} = {v}' for k, v in vars(args).items()))
 
 if args.snr_min!=None and args.snr_max!=None:
