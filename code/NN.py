@@ -13,7 +13,7 @@ from tensorflow.keras import utils
 
 class DistillationDataGenerator(utils.Sequence):
     
-    def __init__(self, X, D, batch_size=32, shuffle=False, seed=42, snr_range_db=None, full_epoch=False):
+    def __init__(self, X, D, batch_size=32, shuffle=False, seed=42, snr_range_db=None, full_epoch=False, norm=True):
         
         # saving arguments
         self.X = X.astype(np.float32)
@@ -21,6 +21,7 @@ class DistillationDataGenerator(utils.Sequence):
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.full_epoch = full_epoch
+        self.norm = norm
         if snr_range_db!=None:
             self.noise = True
             self.snr_range_db = snr_range_db
@@ -69,12 +70,13 @@ class DistillationDataGenerator(utils.Sequence):
             y += N_std_y.reshape(-1,1)*np.random.randn(y.shape[0],y.shape[1])
         
         # normalize
-        xy_min = np.stack((x.min(axis=1),y.min(axis=1)),axis=1).min(axis=1).reshape(-1,1)
-        x -= xy_min
-        y -= xy_min
-        xy_max = np.stack((x.max(axis=1),y.max(axis=1)),axis=1).max(axis=1).reshape(-1,1)
-        x /= xy_max
-        y /= xy_max
+        if self.norm:
+            xy_min = np.stack((x.min(axis=1),y.min(axis=1)),axis=1).min(axis=1).reshape(-1,1)
+            x -= xy_min
+            y -= xy_min
+            xy_max = np.stack((x.max(axis=1),y.max(axis=1)),axis=1).max(axis=1).reshape(-1,1)
+            x /= xy_max
+            y /= xy_max
         
         return (x,y),d
 
@@ -111,15 +113,26 @@ class NormalizeDistance(layers.Layer):
 
 # ==================================================================================
 
+def L1(d, d_hat):
+    return tf.reduce_mean(tf.abs(d - d_hat), -1)
+    
+def L2(d, d_hat):
+    return tf.reduce_mean(tf.square(d - d_hat), -1)
+
 class SiameseModel(Model):
     """
     The Siamese Network model with a custom training and testing loops.
     """
 
-    def __init__(self, siamese_network):
+    def __init__(self, siamese_network, dist_loss='L1'):
         super(SiameseModel, self).__init__()
         self.siamese_network = siamese_network
         self.loss_tracker = metrics.Mean(name="loss")
+        self.dist_loss = dist_loss
+        if dist_loss=='L1':
+            self.loss_func = L1
+        if dist_loss=='L2':
+            self.loss_func = L2
 
     def call(self, inputs):
         #print('<<<call>>>: inputs is {0} of len {1}'.format(str(type(inputs)), str(len(inputs))))
@@ -166,8 +179,8 @@ class SiameseModel(Model):
         #d_hat = self.siamese_network(data)
         d_hat = self.siamese_network(inputs) # bugfix
 
-        # the loss is L1 loss between the vectors
-        loss = tf.reduce_mean(tf.abs(d - d_hat), -1)
+        # the loss is either L1 or L2 loss between the vectors
+        loss = self.loss_func(d, d_hat)
         
         return loss
 
