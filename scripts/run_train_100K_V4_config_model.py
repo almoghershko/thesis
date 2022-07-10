@@ -184,7 +184,7 @@ second_input = layers.Input(name="second_input", shape=(len(wl_grid)))
 first_encoding = encoding(first_input)
 second_encoding = encoding(second_input)
 
-distance = tf.sqrt(tf.reduce_sum(tf.square(first_encoding - second_encoding), -1))
+distance = tf.sqrt(tf.maximum(tf.reduce_sum(tf.square(first_encoding - second_encoding), -1),1e-9))
 
 if args.sigmoid:
     distance = activations.sigmoid(distance)
