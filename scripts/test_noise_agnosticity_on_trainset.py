@@ -46,7 +46,7 @@ s3_runs_dir_path = os.path.join(s3_work_dir_path , 'runs')
 from s3 import to_s3_npy, to_s3_pkl, from_s3_npy, from_s3_pkl, to_s3_fig
 
 # get run directory
-s3_run_dir_path = os.path.join(s3_runs_dir_path, args.run_name)
+s3_run_dir_path = os.path.join(s3_runs_dir_path, 'test_noise_agnosticity', args.run_name)
 print('run dir path = {0}'.format(s3_run_dir_path))
 
 # =========================
