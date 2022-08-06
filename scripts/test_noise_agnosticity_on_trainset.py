@@ -169,7 +169,7 @@ for i,snr in enumerate(SNRs):
     """
     print('denoise NN inference')
     data_gen = DistillationDataGenerator(x, np.zeros(shape=(x.shape[0], x.shape[0])), shuffle=False, seed=seed, batch_size=batch_size, full_epoch=True)
-    Z_NN = siamese_denoise_model.predict(data_gen, verbose=1)
+    Z_NN = siamese_denoise_model.predict(data_gen, verbose=2)
     N = int((-1+np.sqrt(1+8*len(Z_NN)))/2)
     D_NN = np.zeros(shape=(N,N))
     D_NN[np.triu_indices(N)] = Z_NN
