@@ -42,6 +42,7 @@ s3_client = boto3.client("s3", endpoint_url=endpoint_url)
 
 # adding code folder to path
 sys.path.insert(1, local_code_dir_path)
+s3_runs_dir_path = os.path.join(s3_work_dir_path , 'runs')
 from s3 import to_s3_npy, to_s3_pkl, from_s3_npy, from_s3_pkl, to_s3_fig
 
 # get run directory
