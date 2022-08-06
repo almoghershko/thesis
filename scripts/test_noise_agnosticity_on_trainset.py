@@ -5,8 +5,8 @@ parser.add_argument("run_name", help="the name for the run", type=str)
 parser.add_argument("model_dir", help="the name for directory of the NN save", type=str)
 parser.add_argument("epochs", help="number of epochs to take from the save dir", type=int)
 parser.add_argument("--snr_min", help="minimal snr", default=5, type=int)
-parser.add_argument("--snr_min", help="maximal snr", default=30, type=int)
-parser.add_argument("--snr_min", help="snr step", default=5, type=int)
+parser.add_argument("--snr_max", help="maximal snr", default=30, type=int)
+parser.add_argument("--snr_step", help="snr step", default=5, type=int)
 args = parser.parse_args()
 
 # imports
