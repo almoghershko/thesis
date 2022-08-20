@@ -5,8 +5,8 @@ parser.add_argument("run_name", help="the name for the run", type=str)
 parser.add_argument("epochs", help="number of epochs", type=int)
 parser.add_argument("--short_epochs", help="epoch is not a full epoch", action="store_true")
 parser.add_argument("--sub_epochs", help="number of epochs for save intervals", default=1, type=int)
-parser.add_argument("--snr_min", help="the minimal SNR dB", type=int)
-parser.add_argument("--snr_max", help="the maximal SNR dB", type=int)
+parser.add_argument("--snr_min", help="the minimal SNR (linear)", type=int)
+parser.add_argument("--snr_max", help="the maximal SNR (linear)", type=int)
 parser.add_argument("--norm_inputs", help="inputs to the model are normalized to [0,1]", action="store_true")
 parser.add_argument("--batchnorm", help="using batchnorm in model", action="store_true")
 parser.add_argument("--tanh", help="using tanh in encoder final layer", action="store_true")
@@ -17,10 +17,10 @@ args = parser.parse_args()
 print('args:\n\t'+'\n\t'.join(f'{k} = {v}' for k, v in vars(args).items()))
 
 if args.snr_min!=None and args.snr_max!=None:
-    snr_range_db = [args.snr_min, args.snr_max]
+    snr_range = [args.snr_min, args.snr_max]
 else:
     if args.snr_min==None and args.snr_max==None:
-        snr_range_db = None
+        snr_range = None
     else:
         raise Exception("received only one of snr_min/snr_max arguments")
     
@@ -208,8 +208,8 @@ X_train, X_val, I_train, I_test = train_test_split(X, np.arange(X.shape[0]), tra
 
 batch_size = 128
 
-train_gen_full = DistillationDataGenerator(X_train, dist_mat[I_train,:][:,I_train], batch_size=batch_size, shuffle=True, seed=seed, snr_range_db=snr_range_db, full_epoch=not(args.short_epochs), norm=args.norm_inputs)
-val_gen = DistillationDataGenerator(X_val, dist_mat[I_test,:][:,I_test], batch_size=batch_size, shuffle=True, seed=seed, snr_range_db=snr_range_db, full_epoch=False, norm=args.norm_inputs)
+train_gen_full = DistillationDataGenerator(X_train, dist_mat[I_train,:][:,I_train], batch_size=batch_size, shuffle=True, seed=seed, snr_range=snr_range, full_epoch=not(args.short_epochs), norm=args.norm_inputs)
+val_gen = DistillationDataGenerator(X_val, dist_mat[I_test,:][:,I_test], batch_size=batch_size, shuffle=True, seed=seed, snr_range=snr_range, full_epoch=False, norm=args.norm_inputs)
 
 # ===================================
 # Training the model

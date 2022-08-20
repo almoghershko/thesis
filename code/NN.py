@@ -13,7 +13,7 @@ from tensorflow.keras import utils
 
 class DistillationDataGenerator(utils.Sequence):
     
-    def __init__(self, X, D, batch_size=32, shuffle=False, seed=42, snr_range_db=None, full_epoch=False, norm=True):
+    def __init__(self, X, D, batch_size=32, shuffle=False, seed=42, snr_range=None, full_epoch=False, norm=True):
         
         # saving arguments
         self.X = X.astype(np.float32)
@@ -22,9 +22,9 @@ class DistillationDataGenerator(utils.Sequence):
         self.shuffle = shuffle
         self.full_epoch = full_epoch
         self.norm = norm
-        if snr_range_db!=None:
+        if snr_range!=None:
             self.noise = True
-            self.snr_range_db = snr_range_db
+            self.snr_range = snr_range
         else:
             self.noise = False
         
@@ -62,8 +62,7 @@ class DistillationDataGenerator(utils.Sequence):
         
         # add noise
         if self.noise:
-            snr_db = np.random.uniform(low=self.snr_range_db[0], high=self.snr_range_db[1], size=None)
-            snr = 10**(snr_db/10)
+            snr = np.random.uniform(low=self.snr_range[0], high=self.snr_range[1], size=None)
             N_std_x = np.sqrt((np.std(x,axis=1)**2)/snr)
             x += N_std_x.reshape(-1,1)*np.random.randn(x.shape[0],x.shape[1])
             N_std_y = np.sqrt((np.std(y,axis=1)**2)/snr)
