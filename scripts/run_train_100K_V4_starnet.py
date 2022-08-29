@@ -8,9 +8,6 @@ parser.add_argument("--sub_epochs", help="number of epochs for save intervals", 
 parser.add_argument("--snr_min", help="the minimal SNR (linear)", type=int)
 parser.add_argument("--snr_max", help="the maximal SNR (linear)", type=int)
 parser.add_argument("--norm_inputs", help="inputs to the model are normalized to [0,1]", action="store_true")
-parser.add_argument("--batchnorm", help="using batchnorm in model", action="store_true")
-parser.add_argument("--tanh", help="using tanh in encoder final layer", action="store_true")
-parser.add_argument("--sigmoid", help="using sigmoid after distance", action="store_true")
 parser.add_argument("--dist_loss", help="The loss function for the distance", type=str, choices=['L1','L2'], default='L1')
 parser.add_argument("--step", help="training step", default=0.001)
 args = parser.parse_args()
@@ -112,62 +109,19 @@ tf.random.set_seed(seed)
 # Embedding Network
 # ----------------------
 
-hidden_size = 512
-encoding_size = 128
-
 # input layer
 x_in = layers.Input(shape=(len(wl_grid), 1))
 
 # adding the network layers
 x = x_in
 #
-x = layers.Conv1D(64, 31, activation=None, padding='same',
-                  kernel_initializer=initializers.GlorotUniform(seed=seed))(x)
-if args.batchnorm:
-    x = layers.BatchNormalization()(x)
-x = activations.relu(x)
-x = layers.AveragePooling1D( 2, padding='same')(x)
-#
-x = layers.Conv1D(32, 31, activation=None, padding='same',
-                  kernel_initializer=initializers.GlorotUniform(seed=seed))(x)
-if args.batchnorm:
-    x = layers.BatchNormalization()(x)
-x = activations.relu(x)
-x = layers.AveragePooling1D( 2, padding='same')(x)
-#
-x = layers.Conv1D(16, 31, activation=None, padding='same',
-                  kernel_initializer=initializers.GlorotUniform(seed=seed))(x)
-if args.batchnorm:
-    x = layers.BatchNormalization()(x)
-x = activations.relu(x)
-x = layers.AveragePooling1D( 2, padding='same')(x)
-#
-x = layers.Conv1D(8, 31, activation=None, padding='same',
-                  kernel_initializer=initializers.GlorotUniform(seed=seed))(x)
-if args.batchnorm:
-    x = layers.BatchNormalization()(x)
-x = activations.relu(x)
-x = layers.AveragePooling1D( 2, padding='same')(x)
-#
-x = layers.Conv1D(4, 31, activation=None, padding='same',
-                  kernel_initializer=initializers.GlorotUniform(seed=seed))(x)
-if args.batchnorm:
-    x = layers.BatchNormalization()(x)
-x = activations.relu(x)
-x = layers.AveragePooling1D( 2, padding='same')(x)
-#
+x = layers.Conv1D(filters=4 ,kernel_size=8,activation='relu',padding='same',kernel_initializer=initializers.HeNormal(seed=seed))(x)
+x = layers.Conv1D(filters=16,kernel_size=8,activation='relu',padding='same',kernel_initializer=initializers.HeNormal(seed=seed))(x)
+x = layers.MaxPooling1D( 4, padding='same')(x)
 x = layers.Flatten()(x)
-x = layers.Dense(hidden_size,
-                kernel_initializer=initializers.GlorotUniform(seed=seed))(x)
-if args.batchnorm:
-    x = layers.BatchNormalization()(x)
-x = activations.relu(x)
-x = layers.Dense(encoding_size,
-                kernel_initializer=initializers.GlorotUniform(seed=seed))(x)
-if args.batchnorm:
-    x = layers.BatchNormalization()(x)
-if args.tanh:
-    x = activations.tanh(x)
+x = layers.Dense(256,kernel_initializer=initializers.HeNormal(seed=seed))(x)
+x = layers.Dense(128,kernel_initializer=initializers.HeNormal(seed=seed))(x)
+x = activations.tanh(x)
 x_out = x
 
 # creating the model
@@ -185,9 +139,6 @@ first_encoding = encoding(first_input)
 second_encoding = encoding(second_input)
 
 distance = tf.sqrt(tf.maximum(tf.reduce_sum(tf.square(first_encoding - second_encoding), -1),1e-9))
-
-if args.sigmoid:
-    distance = activations.sigmoid(distance)
 
 siamese_network = Model(
     inputs=[first_input, second_input], outputs=distance
