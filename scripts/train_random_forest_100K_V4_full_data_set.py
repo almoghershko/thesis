@@ -11,6 +11,7 @@
 
 # In[2]:
 
+print('Importing...')
 
 # imports
 import pandas as pd
@@ -75,6 +76,8 @@ assert not (save_RF and load_RF), '"save" and "load" cant both be "True"'
 # load data
 print('Loading data and creating dataset')
 gs = from_s3_pkl(s3_client, bucket_name, os.path.join(s3_v4_data_ver_dir_path,'gs_100K_V4.pkl'))
+gs_train = from_s3_pkl(s3_client, bucket_name, os.path.join(s3_v4_data_ver_dir_path,'gs_train_V4.pkl'))
+gs_test = from_s3_pkl(s3_client, bucket_name, os.path.join(s3_v4_data_ver_dir_path,'gs_test_V4.pkl'))
 X = from_s3_npy(s3_client, bucket_name, os.path.join(s3_v2_data_ver_dir_path, 'spec.npy'))
 full_wl_grid = from_s3_npy(s3_client, bucket_name, os.path.join(s3_data_dir_path, 'wl_grid.npy'))
 wl_grid = from_s3_npy(s3_client, bucket_name, os.path.join(s3_v4_data_ver_dir_path, 'wl_100K_V4.npy'))
@@ -93,6 +96,35 @@ assert not np.any(np.isnan(X)), 'NaN!'
 
 # In[7]:
 
+
+shifts = False
+from CustomRandomForest import return_synthetic_data_shift, return_synthetic_data, fix_nan_shifts
+from uRF_SDSS import merge_work_and_synthetic_samples
+
+# split to training and test set
+# test is randomly selected out of the 80K which are the 100K-10K(small RF training)-10K(small RF test)
+
+I_80K = [i for i in range(len(gs)) if ((gs.index[i] not in gs_train.index) and (gs.index[i] not in gs_test.index))]
+
+I_test = np.random.choice(I_80K, 5000)
+X_test = X[I_test,:]
+if shifts:
+    X_test_syn = return_synthetic_data_shift(X_test, 10, 3, seed)
+    X_test_syn = fix_nan_shifts(X_test_syn,10)
+else:
+    X_test_syn = return_synthetic_data(X_test, seed)
+Z_test, y_test = merge_work_and_synthetic_samples(X_test, X_test_syn)
+
+I_train = np.array([i for i in range(len(gs)) if i not in I_test])
+X_train = X[I_train,:]
+if shifts:
+    X_train_syn = return_synthetic_data_shift(X_train, 10, 3, seed)
+    X_train_syn = fix_nan_shifts(X_train_syn,10)
+else:
+    X_train_syn = return_synthetic_data(X_train, seed)
+Z_train, y_train = merge_work_and_synthetic_samples(X_train, X_train_syn)
+
+"""
 
 # creaet synthetic samples
 print('Creating synthetic data')
@@ -114,6 +146,7 @@ Z, y = merge_work_and_synthetic_samples(X, X_syn)
 from sklearn.model_selection import train_test_split
 Z_train, Z_test, y_train, y_test, I_train, I_test = train_test_split(Z, y, np.arange(len(y)), train_size=190000, random_state=seed)
 
+"""
 
 # ## Fit a random forest
 
